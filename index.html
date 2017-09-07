@@ -144,9 +144,14 @@
   			var newUrl = catGifUrl + "&cacheBuster=" + new Date().getTime();
   			document.getElementById("cat-gif").src = newUrl;
 
-  			start = Math.random().toFixed(3);
-        twoPlace = parseFloat(start).toFixed(2);
-        onePlace = parseFloat(start).toFixed(1);
+        //confusedly copied from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
+        var sensiblyToFixed = function( num, precision ) {
+            return (+(Math.round(+(num + 'e' + precision)) + 'e' + -precision)).toFixed(precision);
+        }
+
+  			start = sensiblyToFixed(Math.random(), 3);
+        twoPlace = sensiblyToFixed(start, 2);
+        onePlace = sensiblyToFixed(start, 1);
   			
   			hideAll(".row");
   			hideAll(".mark-holder span");
