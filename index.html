@@ -1,0 +1,178 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Round it</title>
+
+  <style>
+  	html {height: 100%; font-size: 24px;}
+  	body {
+  		height: 100%; 
+  		background-color: #dceceb; 
+  		display: flex; 
+  		flex-direction: column;
+      margin:0;
+  	}
+
+    .game-area {
+      flex-grow: 1;
+    }
+
+    footer {
+      flex-grow: 0;
+      padding: 10px;
+      text-align: center;
+    }
+
+  	.row {
+  		width: 95%; 
+  		min-height: 2em;
+  		margin: 0 auto; 
+  		text-align: center;
+  		font-size: 2em;
+  		line-height: 2em;
+  		vertical-align: middle;
+  	}
+  	input  {
+  		line-height: 2em;
+  		font-size: 1em;
+  		text-align: center;
+  		width: 2.5em;
+  	}
+  	.tick {color:green;}
+  	.cross {color:red;}
+  	.mark-holder {width: 1em; display: inline-block;}
+  	#done { padding-top:1em; }
+  	#done img { 
+  		width: 100%; 
+  		max-width: 650px; 
+  		display: block; 
+  		margin: auto;
+  	}
+  	#done button {
+  		background-color: #c4bbbe;
+	    font-size: 0.75em;
+	    border: 0;
+	    border-radius: 10px;
+	    padding: 0.3em;
+	    cursor: pointer;
+  	}
+  </style>
+<body>
+    <div class="game-area">
+      <div id="initial-number" class="row"></div>
+      <div id="two-places" class="row">
+        To round to two decimal places: <input/>
+        <div class="mark-holder">
+          <span class="tick" style="display: none;">✓</span>
+          <span class="cross" style="display: none;">✘</span>
+        </div>
+      </div>
+      <div id="one-place" class="row" style="display: none;">
+        <div>
+          To round to one decimal place: <input/>     
+          <div class="mark-holder">
+            <span class="tick" style="display: none;">✓</span>
+            <span class="cross" style="display: none;">✘</span>
+          </div>
+        </div>
+      </div>
+      <div id="done" class="row" style="display: none;">
+        <div class="result">
+          
+        </div>
+        <button>
+          Awesome, Again?
+        </button>
+        <img id="cat-gif" src="">
+      </div>
+    </div>  
+    <footer>
+      <a href="https://pauldambra.github.io/get-to-1000/" target="_blank">You can also play 'Get to 1000'</a>
+    </footer>
+	<script>
+		var catGifUrl = "http://thecatapi.com/api/images/get?format=src&type=gif";
+
+		var setupRow = function(id, start, targetValue, onCorrect) {
+			return function() {
+				var row = document.getElementById(id);
+				row.style.display = "";
+				
+				if (row.querySelectorAll(".start").length > 0) {
+					row.querySelectorAll(".start")[0].innerHTML = start;
+				}
+
+				row.querySelectorAll("input")[0].addEventListener('input', function(e) {
+					var answerCorrect = this.value === targetValue;
+					row.querySelectorAll(".tick")[0].style.display = answerCorrect ? "" : "none";
+					row.querySelectorAll(".cross")[0].style.display =  answerCorrect ? "none" : "";
+
+					if (answerCorrect) { 
+						setTimeout(onCorrect, 500)
+					}
+				});
+			};
+		};
+
+		var start;
+		var twoPlace;
+    var onePlace;
+
+		var hideAll = function(selector) {
+			var nodes = document.querySelectorAll(selector);
+			for (var i = 0; i < nodes.length; i++) {
+			    nodes[i].style.display = "none";
+			}
+		}
+
+		var unsetAll = function() {
+			var nodes = document.querySelectorAll("input");
+			for (var i = 0; i < nodes.length; i++) {
+			    nodes[i].value = "";
+			}
+		}
+
+    var randomNumber = function() {
+      return Math.random();
+    }
+
+		var setupPage = function() {
+			var newUrl = catGifUrl + "&cacheBuster=" + new Date().getTime();
+			document.getElementById("cat-gif").src = newUrl;
+
+			start = Math.random().toFixed(3);
+      twoPlace = parseFloat(start).toFixed(2);
+      onePlace = parseFloat(start).toFixed(1);
+			
+			hideAll(".row");
+			hideAll(".mark-holder span");
+			unsetAll();
+
+			var initialRow = document.getElementById("initial-number");
+			initialRow.style.display = "";
+			initialRow.innerHTML = 'Your starting number is ' + start;
+
+			setupOneDecimalPlaceRow = setupRow("one-place", twoPlace, onePlace, showDoneButton);
+			setupTwoDecimalPlacesRow = setupRow("two-places", start, twoPlace, setupOneDecimalPlaceRow);
+
+			setupTwoDecimalPlacesRow();
+		};
+
+		document.getElementById("done").addEventListener("click", function() {
+			setupPage();
+		});
+
+		var showDoneButton = function() {
+			hideAll(".row");
+			var buttonHolder = document.getElementById("done");
+			buttonHolder.querySelectorAll(".result")[0].innerHTML = start + " => " + twoPlace  + " => " + onePlace;
+			buttonHolder.querySelectorAll("button")[0].innerHTML = "Awesome work! Again?";
+			document.getElementById("done").style.display = "";
+		};
+
+		setupPage();
+	</script>
+</body>
+</html>
