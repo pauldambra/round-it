@@ -149,16 +149,29 @@
         return Math.random();
       }
 
-      var catUrl = function() {
-        var catGifUrl = "http://thecatapi.com/api/images/get?format=src&type=gif";
-        return catGifUrl + "&cacheBuster=" + new Date().getTime();
-      }
+    var nextImage;
+    var preloadNextCatUrl = function() {
+
+        var catGifUrl = "https://thecatapi.com/api/images/get?format=src&type=gif";
+        catGifUrl += "&cacheBuster=" + new Date().getTime();
+
+        var i = new Image();
+        i.style.width = '100%';
+        i.onload = function() {
+          nextImage = i;
+
+        }
+        i.src = catGifUrl;
+    }
+
+    var addCatImage = function() {
+        var theGif = document.getElementById("cat-gif");
+        theGif.innerHTML = '';
+        theGif.appendChild(nextImage);
+    }
 
   		var setupPage = function() {
-  			var theGif = document.getElementById("cat-gif");
-  			theGif.style.backgroundImage = 'url("'+catUrl()+'")';
-        theGif.style.backgroundSize = 'cover';
-        theGif.style.backgroundPosition = 'center';
+  			preloadNextCatUrl();
 
         //confusedly copied from https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/round
         var sensiblyToFixed = function( num, precision ) {
@@ -192,6 +205,7 @@
   			var buttonHolder = document.getElementById("done");
   			buttonHolder.querySelectorAll(".result")[0].innerHTML = start + " => " + twoPlace  + " => " + onePlace;
   			buttonHolder.querySelectorAll("button")[0].innerHTML = "Awesome work! Again?";
+        addCatImage();
   			document.getElementById("done").style.display = "";
   		};
 
